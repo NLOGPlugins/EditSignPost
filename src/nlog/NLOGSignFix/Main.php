@@ -161,11 +161,11 @@ class Main extends PluginBase implements Listener {
 		$json = [];
 		$json["type"] = "custom_form";
 		$json["title"] = "표지판 수정";
-		$json["contents"] = [];
-		$json["contents"][] = ["type" => "input", "text" => "첫번째 줄", "default" => $line1, "placeholder" => "첫번째 줄"];
-		$json["contents"][] = ["type" => "input", "text" => "두번째 줄", "default" => $line2, "placeholder" => "두번째 줄"];
-		$json["contents"][] = ["type" => "input", "text" => "세번째 줄", "default" => $line3, "placeholder" => "세번째 줄"];
-		$json["contents"][] = ["type" => "input", "text" => "네번째 줄", "default" => $line4, "placeholder" => "네번째 줄"];
+		$json["content"] = [];
+		$json["content"][] = ["type" => "input", "text" => "첫번째 줄", "default" => $line1, "placeholder" => "첫번째 줄"];
+		$json["content"][] = ["type" => "input", "text" => "두번째 줄", "default" => $line2, "placeholder" => "두번째 줄"];
+		$json["content"][] = ["type" => "input", "text" => "세번째 줄", "default" => $line3, "placeholder" => "세번째 줄"];
+		$json["content"][] = ["type" => "input", "text" => "네번째 줄", "default" => $line4, "placeholder" => "네번째 줄"];
 		return json_encode($json);
 	}
 	public function onQuit(PlayerQuitEvent $ev) {
