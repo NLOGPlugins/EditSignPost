@@ -94,9 +94,9 @@ class Main extends PluginBase implements Listener {
 		$args = $l["args"];
 		$sub = $args[0] ?? "default";
 		switch ($sub) {
-			case "생성":
+			case "수정":
 				if (isset($this->process[$sender->getName() ])) {
-					$sender->sendMessage(self::TAG . "이미 생성 작업 중 입니다.");
+					$sender->sendMessage(self::TAG . "이미 수정 작업 중 입니다.");
 					return true;
 				}
 				$this->process[$sender->getName() ] = "";
@@ -104,11 +104,11 @@ class Main extends PluginBase implements Listener {
 				return true;
 			case "취소":
 				if (!isset($this->process[$sender->getName() ])) {
-					$sender->sendMessage(self::TAG . "생성 작업을 하고 있지 않습니다.");
+					$sender->sendMessage(self::TAG . "수정 작업을 하고 있지 않습니다.");
 					return true;
 				}
 				unset($this->process[$sender->getName() ]);
-				$sender->sendMessage(self::TAG . "생성 작업을 취소하였습니다.");
+				$sender->sendMessage(self::TAG . "수정 작업을 취소하였습니다.");
 				return true;
 			default:
 				$sender->sendMessage(self::TAG . "/{$label} 수정 - 표지판을 수정합니다.");
