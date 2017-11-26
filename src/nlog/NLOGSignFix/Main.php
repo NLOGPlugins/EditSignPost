@@ -81,6 +81,8 @@ class Main extends PluginBase implements Listener {
 					}
 				}
 			}
+		}else{
+			$array = [];
 		}
 		return ["label" => $label, "args" => $array];
 	}
