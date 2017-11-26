@@ -111,8 +111,8 @@ class Main extends PluginBase implements Listener {
 				$sender->sendMessage(self::TAG . "생성 작업을 취소하였습니다.");
 				return true;
 			default:
-				$sender->sendMessage(self::TAG . "/{$command->getName() } 수정 - 표지판을 수정합니다.");
-				$sender->sendMessage(self::TAG . "/{$command->getName() } 취소 - 표지판 수정 작업을 취소합니다.");
+				$sender->sendMessage(self::TAG . "/{$label} 수정 - 표지판을 수정합니다.");
+				$sender->sendMessage(self::TAG . "/{$label} 취소 - 표지판 수정 작업을 취소합니다.");
 				return true;
 		}
 	} //onCommand
