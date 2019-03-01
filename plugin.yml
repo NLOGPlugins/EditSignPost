@@ -2,7 +2,4 @@ name: NLOGSignFix
 version: "1.0"
 api: 3.0.0-ALPHA9
 author: nlog
-main: nlog\NLOGSignFix\Main
-commands:
-  sign:
-    description: 표지판 수정 관련 명령어
+main: nlog\editsign\Loader
