@@ -1,5 +1,5 @@
-name: NLOGSignFix
+name: EditSignPost
 version: "1.0"
-api: 3.0.0-ALPHA9
+api: [4.0.0]
 author: nlog
 main: nlog\editsign\Loader
