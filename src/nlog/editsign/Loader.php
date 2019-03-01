@@ -80,26 +80,28 @@ class Loader extends PluginBase implements Listener {
             $sign->setText($sign->getText());
 
             unset(self::$process[$ev->getPlayer()->getName()]);
+
+            $ev->getPlayer()->sendMessage(self::$prefix . "표지판 내용을 수정하였습니다.");
         }
     }
 
     public function onTouch(PlayerInteractEvent $ev) {
-        if (($this->process[$ev->getPlayer()->getName()] ?? 'none') !== 'edit') {
+        if ((self::$process[$ev->getPlayer()->getName()] ?? 'none') !== 'edit') {
             return;
         }
 
-        $tile = $ev->getBlock()->getLevel()->getTile($ev->getBlock()->asVector3());
-        if ($tile instanceof SignTile) {
+        $sign = $ev->getBlock()->getLevel()->getTile($ev->getBlock()->asVector3());
+        if ($sign instanceof SignTile) {
             unset(self::$process[$ev->getPlayer()->getName()]);
 
             if ($ev->getPlayer()->isOp()) {
-                $this->sendFormPacket($ev->getPlayer(), $tile->getText());
-                self::$process[$ev->getPlayer()->getName()] = $tile;
+                $this->sendFormPacket($ev->getPlayer(), $sign->getText());
+                self::$process[$ev->getPlayer()->getName()] = $sign;
             } elseif (self::compatibilityWithSimpleArea()) {
                 $section = AreaProvider::getInstance()->getArea($ev->getBlock()->getLevel(), $ev->getBlock()->getX(), $ev->getBlock()->getZ());
                 if ($section !== null && $section->isResident($ev->getPlayer()->getName())) {
-                    $this->sendFormPacket($ev->getPlayer(), $tile->getText());
-                    self::$process[$ev->getPlayer()->getName()] = $tile;
+                    $this->sendFormPacket($ev->getPlayer(), $sign->getText());
+                    self::$process[$ev->getPlayer()->getName()] = $sign;
                 }
             }
         }
@@ -113,7 +115,7 @@ class Loader extends PluginBase implements Listener {
         $pk->formData = json_encode([
                 'type' => 'custom_form',
                 'title' => '표지판 내용 수정',
-                'content' => array_values(array_map(function ($text) use ($i) {
+                'content' => array_values(array_map(function ($text) use (&$i) {
                     ++$i;
                     return ["type" => "input", "text" => $i . "번째 줄", "default" => $text, "placeholder" => "첫번째 줄"];
                 }, $signText->getLines()))
