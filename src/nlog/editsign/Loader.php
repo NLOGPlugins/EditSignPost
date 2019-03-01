@@ -117,7 +117,7 @@ class Loader extends PluginBase implements Listener {
                 'title' => '표지판 내용 수정',
                 'content' => array_values(array_map(function ($text) use (&$i) {
                     ++$i;
-                    return ["type" => "input", "text" => $i . "번째 줄", "default" => $text, "placeholder" => "첫번째 줄"];
+                    return ["type" => "input", "text" => $i . "번째 줄", "default" => $text, "placeholder" => $i . "번째 줄"];
                 }, $signText->getLines()))
 
         ]);
