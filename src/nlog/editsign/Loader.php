@@ -80,6 +80,8 @@ class Loader extends PluginBase implements Listener {
 
             if (!$sign->getWorld()->getBlock($sign) instanceof SignBlock) {
                 $player->sendMessage(self::$prefix . "해당 위치에 표지판이 없습니다.");
+                unset(self::$process[$player->getName()]);
+                return;
             }
 
             $sign->getText()->setLines($data);
