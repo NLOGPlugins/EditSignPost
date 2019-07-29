@@ -91,7 +91,7 @@ class Loader extends PluginBase implements Listener {
             return;
         }
 
-        if (($block = $ev->getBlock()) instanceof SignBlock) {
+        if (($block = $ev->getBlock()) instanceof SignBlock && $block->getWorld()->getBlock($block) instanceof SignBlock) {
             /** @var SignBlock $block */
             unset(self::$process[$ev->getPlayer()->getName()]);
 
