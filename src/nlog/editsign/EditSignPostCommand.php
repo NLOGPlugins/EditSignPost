@@ -20,7 +20,7 @@ namespace nlog\editsign;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class EditSignPostCommand extends PluginCommand {
 

@@ -19,6 +19,7 @@
 namespace nlog\editsign;
 
 use ifteam\SimpleArea\database\area\AreaProvider;
+use pocketmine\block\Sign as SignBlock;
 use pocketmine\block\utils\SignText;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -26,11 +27,10 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
-use pocketmine\tile\Sign as SignTile;
 use pocketmine\utils\TextFormat;
 
 class Loader extends PluginBase implements Listener {
@@ -38,7 +38,7 @@ class Loader extends PluginBase implements Listener {
     /** @var int */
     private const FORM_ID = 202198;
 
-    /** @var array */
+    /** @var string[]|SignBlock[] */
     public static $process = [];
 
     public static function compatibilityWithSimpleArea(): bool {
@@ -67,21 +67,22 @@ class Loader extends PluginBase implements Listener {
 
     public function onReceive(DataPacketReceiveEvent $ev) {
         $pk = $ev->getPacket();
+        $player = $ev->getOrigin()->getPlayer();
         if (
                 $pk instanceof ModalFormResponsePacket &&
                 $pk->formId === self::FORM_ID &&
-                self::$process[$ev->getPlayer()->getName()] instanceof SignTile
+                self::$process[$player->getName()] instanceof SignBlock
         ) {
             $data = array_values(json_decode($pk->formData, true));
 
-            /** @var SignTile $sign */
-            $sign = self::$process[$ev->getPlayer()->getName()];
+            /** @var SignBlock $sign */
+            $sign = self::$process[$player->getName()];
             $sign->getText()->setLines($data);
-            $sign->setText($sign->getText());
+            $sign->writeStateToWorld();
 
-            unset(self::$process[$ev->getPlayer()->getName()]);
+            unset(self::$process[$player->getName()]);
 
-            $ev->getPlayer()->sendMessage(self::$prefix . "표지판 내용을 수정하였습니다.");
+            $player->sendMessage(self::$prefix . "표지판 내용을 수정하였습니다.");
         }
     }
 
@@ -90,18 +91,18 @@ class Loader extends PluginBase implements Listener {
             return;
         }
 
-        $sign = $ev->getBlock()->getLevel()->getTile($ev->getBlock()->asVector3());
-        if ($sign instanceof SignTile) {
+        if (($block = $ev->getBlock()) instanceof SignBlock) {
+            /** @var SignBlock $block */
             unset(self::$process[$ev->getPlayer()->getName()]);
 
             if ($ev->getPlayer()->isOp()) {
-                $this->sendFormPacket($ev->getPlayer(), $sign->getText());
-                self::$process[$ev->getPlayer()->getName()] = $sign;
+                $this->sendFormPacket($ev->getPlayer(), $block->getText());
+                self::$process[$ev->getPlayer()->getName()] = $block;
             } elseif (self::compatibilityWithSimpleArea()) {
-                $section = AreaProvider::getInstance()->getArea($ev->getBlock()->getLevel(), $ev->getBlock()->getX(), $ev->getBlock()->getZ());
+                $section = AreaProvider::getInstance()->getArea($ev->getBlock()->getWorld(), $ev->getBlock()->getX(), $ev->getBlock()->getZ());
                 if ($section !== null && $section->isResident($ev->getPlayer()->getName())) {
-                    $this->sendFormPacket($ev->getPlayer(), $sign->getText());
-                    self::$process[$ev->getPlayer()->getName()] = $sign;
+                    $this->sendFormPacket($ev->getPlayer(), $block->getText());
+                    self::$process[$ev->getPlayer()->getName()] = $block;
                 }
             }
         }
