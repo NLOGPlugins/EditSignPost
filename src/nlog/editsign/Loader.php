@@ -77,6 +77,11 @@ class Loader extends PluginBase implements Listener {
 
             /** @var SignBlock $sign */
             $sign = self::$process[$player->getName()];
+
+            if (!$sign->getWorld()->getBlock($sign) instanceof SignBlock) {
+                $player->sendMessage(self::$prefix . "해당 위치에 표지판이 없습니다.");
+            }
+
             $sign->getText()->setLines($data);
             $sign->writeStateToWorld();
 
@@ -91,7 +96,7 @@ class Loader extends PluginBase implements Listener {
             return;
         }
 
-        if (($block = $ev->getBlock()) instanceof SignBlock && $block->getWorld()->getBlock($block) instanceof SignBlock) {
+        if (($block = $ev->getBlock()) instanceof SignBlock) {
             /** @var SignBlock $block */
             unset(self::$process[$ev->getPlayer()->getName()]);
 
