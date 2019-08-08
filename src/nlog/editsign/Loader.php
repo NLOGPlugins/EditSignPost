@@ -40,17 +40,8 @@ class Loader extends PluginBase implements Listener {
 
     /** @var string[]|SignBlock[] */
     public static $process = [];
-
-    public static function compatibilityWithSimpleArea(): bool {
-        return Server::getInstance()->getPluginManager()->getPlugin("SimpleArea") instanceof Plugin;
-    }
-
     /** @var string */
     public static $prefix = "§b§l[ 표지판수정 ]§r§7 ";
-
-    protected function onLoad() {
-        self::$process = [];
-    }
 
     public function onEnable() {
         if (!class_exists(SignText::class, false)) {
@@ -73,23 +64,24 @@ class Loader extends PluginBase implements Listener {
                 $pk->formId === self::FORM_ID &&
                 self::$process[$player->getName()] instanceof SignBlock
         ) {
+            if (json_decode($pk->formData, true) === null) {
+                return;
+            }
             $data = array_values(json_decode($pk->formData, true));
 
             /** @var SignBlock $sign */
             $sign = self::$process[$player->getName()];
-
-            if (!$sign->getWorld()->getBlock($sign) instanceof SignBlock) {
-                $player->sendMessage(self::$prefix . "해당 위치에 표지판이 없습니다.");
-                unset(self::$process[$player->getName()]);
-                return;
-            }
-
-            $sign->getText()->setLines($data);
-            $sign->writeStateToWorld();
+            $new = (clone $sign->getText());
+            $new->setLines($data);
 
             unset(self::$process[$player->getName()]);
 
-            $player->sendMessage(self::$prefix . "표지판 내용을 수정하였습니다.");
+
+            if ($sign->updateText($player, $new)) {
+                $player->sendMessage(self::$prefix . "표지판 내용을 수정하였습니다.");
+            } else {
+                $player->sendMessage(self::$prefix . "표지판 내용을 수정하지 못하였습니다.");
+            }
         }
     }
 
@@ -98,7 +90,7 @@ class Loader extends PluginBase implements Listener {
             return;
         }
 
-        if (($block = $ev->getBlock()) instanceof SignBlock) {
+        if (($block = $ev->getBlock()) instanceof SignBlock && $block->getPos()->getWorld()->getBlock($block->getPos()) instanceof SignBlock) {
             /** @var SignBlock $block */
             unset(self::$process[$ev->getPlayer()->getName()]);
 
@@ -106,7 +98,7 @@ class Loader extends PluginBase implements Listener {
                 $this->sendFormPacket($ev->getPlayer(), $block->getText());
                 self::$process[$ev->getPlayer()->getName()] = $block;
             } elseif (self::compatibilityWithSimpleArea()) {
-                $section = AreaProvider::getInstance()->getArea($ev->getBlock()->getWorld(), $ev->getBlock()->getX(), $ev->getBlock()->getZ());
+                $section = AreaProvider::getInstance()->getArea($ev->getBlock()->getPos()->getWorld(), $ev->getBlock()->getPos()->getX(), $ev->getBlock()->getPos()->getZ());
                 if ($section !== null && $section->isResident($ev->getPlayer()->getName())) {
                     $this->sendFormPacket($ev->getPlayer(), $block->getText());
                     self::$process[$ev->getPlayer()->getName()] = $block;
@@ -133,10 +125,18 @@ class Loader extends PluginBase implements Listener {
         $player->sendDataPacket($pk);
     }
 
+    public static function compatibilityWithSimpleArea(): bool {
+        return Server::getInstance()->getPluginManager()->getPlugin("SimpleArea") instanceof Plugin;
+    }
+
     public function onQuit(PlayerQuitEvent $ev) {
         if (isset(self::$process[$ev->getPlayer()->getName()])) {
             unset(self::$process[$ev->getPlayer()->getName()]);
         }
+    }
+
+    protected function onLoad() {
+        self::$process = [];
     }
 
 }
